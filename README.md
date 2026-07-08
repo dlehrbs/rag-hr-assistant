@@ -10,6 +10,8 @@
 ![next](https://img.shields.io/badge/Next.js-16-black)
 ![docker](https://img.shields.io/badge/Docker-Compose-2496ED)
 
+**Contents:** [Features](#-features) · [Architecture](#️-architecture) · [Tech stack](#-tech-stack) · [Quick start](#-quick-start) · [Configuration](#️-configuration) · [Screenshots](#-screenshots) · [Structure](#-project-structure) · [Security](#-security) · [License](#-license)
+
 ---
 
 ## ✨ Features
@@ -65,6 +67,22 @@ Documents (PDF·Word·Excel·PPT·HTML·txt·md)
 
 ---
 
+## 🧰 Tech stack
+
+| Layer | Technology |
+|-------|-----------|
+| **LLM serving** | vLLM (OpenAI-compatible), EXAONE-3.5-7.8B-Instruct-AWQ (swappable) |
+| **Embeddings** | `intfloat/multilingual-e5-large` (1024-dim) |
+| **Reranker** | `BAAI/bge-reranker-v2-m3` (cross-encoder) |
+| **Vector store** | ChromaDB |
+| **Keyword search** | Kiwi morphological analyzer + BM25 |
+| **Parsing** | LlamaParse (cloud) / PyMuPDF (local fallback) |
+| **Backend** | FastAPI (Python 3.11), SQLite (WAL) |
+| **Frontend** | Next.js 16 (App Router), React 19, Zustand, Tailwind |
+| **Infra** | Docker Compose, nginx reverse proxy |
+
+---
+
 ## 🚀 Quick start
 
 **Prerequisites:** an NVIDIA GPU + drivers, and Docker (with the NVIDIA container runtime).
@@ -97,6 +115,18 @@ Everything is driven by `.env` (see [`.env.example`](.env.example)). The only va
 | `ADMIN_PASSWORD` | Initial admin password |
 
 Optional: `LLAMA_CLOUD_API_KEY` (precise parsing), `SEARXNG_URL` (web search), SMTP\_\* (email alerts), `RERANK_THRESHOLD` and other RAG knobs.
+
+---
+
+## 🖼️ Screenshots
+
+The UI includes:
+- **Home** — category quick-chips, capability cards, and a `📘 Docs ↔ 💬 General` answer-mode toggle.
+- **Chat** — streamed answers with a `Sources` chip that expands to the exact cited passages, plus follow-up suggestions.
+- **Project space** — a file panel (upload PDF/Word/Excel/PPT/HTML) beside the conversation, with per-project instructions and member sharing.
+- **Admin console** — real-time p50/p95 latency, GPU status, query logs, zero-hit knowledge-gap mining, and user management.
+
+> Add your own captures (from a running instance with demo data) to `docs/screenshots/` and link them here.
 
 ---
 

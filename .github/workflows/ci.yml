@@ -18,6 +18,13 @@ jobs:
           docker build ./backend -t rag-hr-assistant/backend:test
           echo "✅ Backend 빌드 성공"
 
+      # [회귀 게이트] 빌드된 이미지에서 순수 설정·브랜딩 단위테스트 실행 (GPU 불필요).
+      - name: 단위테스트 실행 (config·branding)
+        run: |
+          docker run --rm --workdir /app/app rag-hr-assistant/backend:test \
+            python -m unittest tests.test_config -v
+          echo "✅ 단위테스트 통과"
+
       - name: Frontend 이미지 빌드 테스트
         run: |
           docker build ./frontend \
