@@ -1,0 +1,27 @@
+name: CI — 빌드·테스트
+
+on:
+  pull_request:
+    branches: [ main, dev ]
+
+jobs:
+  build-test:
+    name: Docker 빌드·단위테스트
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Backend 이미지 빌드 테스트
+        run: |
+          docker build ./backend -t rag-hr-assistant/backend:test
+          echo "✅ Backend 빌드 성공"
+
+      - name: Frontend 이미지 빌드 테스트
+        run: |
+          docker build ./frontend \
+            --build-arg NEXT_PUBLIC_API_URL=http://localhost:8123 \
+            --build-arg BACKEND_URL=http://localhost:8123 \
+            -t rag-hr-assistant/frontend:test
+          echo "✅ Frontend 빌드 성공"

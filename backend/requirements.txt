@@ -1,0 +1,57 @@
+# ── 버전 고정(==) 정책 ─────────────────────────────
+#   재현 가능한 빌드를 위해 현재 운영(v2.4.0)에서 동작 검증된 버전으로 핀 고정.
+#   업그레이드 시: 값 변경 → docker compose build → 검증 후 커밋.
+#   (조회: docker exec dy-widget-backend pip freeze)
+
+# ── FastAPI 서버 ──────────────────────────────────
+fastapi==0.138.1
+uvicorn==0.49.0
+pydantic==2.13.4
+python-multipart==0.0.32       # 파일 업로드(UploadFile) 필수
+python-dotenv==1.2.2
+
+# ── load-bearing 전이(transitive) 의존 고정 ────────
+#   아래는 fastapi/pydantic의 하위 의존이라 직접 설치하진 않지만, 라우팅·직렬화 등
+#   서버 핵심 동작을 좌우한다. 미고정 시 재빌드에서 상위 호환 범위 내 다른 버전이 끌려와
+#   동작이 미묘하게 바뀔 수 있어(실제 starlette 1.3.1의 app.routes 인트로스펙션 특이동작 경험),
+#   현재 운영에서 검증된 버전으로 명시 고정. fastapi/pydantic 올릴 때 함께 재검토.
+starlette==1.3.1               # FastAPI 라우팅·미들웨어·TestClient 기반
+anyio==4.14.1                  # async 런타임(starlette/httpx 공용)
+pydantic-core==2.46.4          # pydantic 검증 엔진
+
+# ── 문서 파싱 ─────────────────────────────────────
+pymupdf==1.27.2.3              # fitz (PyMuPDF) — PDF
+llama-parse==0.6.94            # 정밀 분석 모드 (Cloud VLM)
+python-docx==1.2.0             # .docx (Word)
+openpyxl==3.1.5               # .xlsx (Excel)
+python-pptx==1.0.2            # .pptx (PowerPoint)
+lxml==6.1.1                   # .html/.htm 본문·표 추출 (python-docx/pptx 필수 의존성이기도 함)
+
+# ── LangChain 생태계 ──────────────────────────────
+langchain-core==1.4.8
+langchain-text-splitters==1.1.2
+langchain-chroma==1.1.0       # ChromaDB LangChain 통합
+langchain-openai==1.3.3       # vLLM OpenAI 호환 API
+langchain-community==0.4.2    # PyMuPDFLoader 등
+langchain-huggingface==1.2.2  # HuggingFaceEmbeddings (임베딩 필수)
+
+# ── 벡터 DB ───────────────────────────────────────
+chromadb==1.5.9
+
+# ── 임베딩 & 리랭킹 ───────────────────────────────
+sentence-transformers==5.6.0  # BGE 리랭커 CrossEncoder
+huggingface-hub==1.21.0       # 모델 다운로드
+
+# ── 한국어 BM25 ───────────────────────────────────
+kiwipiepy==0.23.2             # Kiwi 형태소 분석기
+rank_bm25==0.2.2              # BM25Okapi
+
+# ── 유틸리티 ─────────────────────────────────────
+tqdm==4.68.3
+requests==2.34.2
+httpx==0.28.1
+torch==2.12.1                 # GPU 메모리 직접 체크 및 제어용
+python-jose[cryptography]==3.5.0   # JWT 보안 토큰 생성 및 검증
+passlib[bcrypt]==1.7.4        # 비밀번호 안전한 해싱(암호화)
+pynvml==13.0.1               # GPU 온도/메모리 모니터링
+slowapi==0.1.10              # Rate Limiting (분당 요청 횟수 제한)

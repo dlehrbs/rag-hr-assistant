@@ -1,0 +1,82 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+/* Tailwind v4 class-based dark mode config */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Printing Styles for Professional PDF Export */
+@media print {
+  @page {
+    margin: 15mm;
+    size: auto;
+  }
+  
+  /* 1. Hide ALL UI except the chat main area */
+  header, aside, .sidebar-container, .no-print, 
+  #chat-input-container, button, .lucide, 
+  .theme-toggle, [role="tablist"] {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* 2. Flatten Layout for Printing */
+  html, body {
+    height: auto !important;
+    min-height: 0 !important;
+    background-color: white !important;
+    color: black !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  #chat-scroll-container, main {
+    display: block !important;
+    overflow: visible !important;
+    position: relative !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+    box-shadow: none !important;
+  }
+
+  /* 3. Force Text Visibility (Nuclear Option) */
+  * {
+    color: black !important;
+    background-color: transparent !important;
+    text-shadow: none !important;
+    box-shadow: none !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* 4. Formatting Bubbles */
+  .message-bubble {
+    display: block !important;
+    width: 100% !important;
+    break-inside: avoid;
+    margin-bottom: 2rem !important;
+    padding: 1rem !important;
+    border: 1px solid #eee !important;
+    border-radius: 1rem !important;
+    background-color: #fafafa !important;
+  }
+
+  /* Remove gradients that disappear in print */
+  .bg-gradient-to-r, .bg-clip-text {
+    background: none !important;
+    -webkit-background-clip: initial !important;
+    color: black !important;
+  }
+
+  /* Ensure thought process is visible */
+  details, .thought-step {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+}

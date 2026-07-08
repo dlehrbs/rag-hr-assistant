@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HR 포털 (Widget POC 테스트)</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f0f4f8; color: #1e293b; }
+
+    .header {
+      background: #1e3a5f;
+      color: #fff;
+      padding: 0 32px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .header .logo { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
+    .header nav a { color: #cbd5e1; text-decoration: none; margin-left: 24px; font-size: 14px; }
+    .header nav a:hover { color: #fff; }
+
+    .sidebar {
+      position: fixed;
+      top: 56px;
+      left: 0;
+      width: 220px;
+      height: calc(100vh - 56px);
+      background: #1e293b;
+      padding: 16px 0;
+      overflow-y: auto;
+    }
+    .sidebar-section { padding: 8px 20px 4px; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.8px; }
+    .sidebar-item {
+      display: block;
+      padding: 9px 20px;
+      color: #94a3b8;
+      text-decoration: none;
+      font-size: 13.5px;
+      transition: background .12s, color .12s;
+    }
+    .sidebar-item:hover { background: #334155; color: #e2e8f0; }
+    .sidebar-item.active { background: #2563eb; color: #fff; }
+
+    .main { margin-left: 220px; padding: 32px; }
+    .page-title { font-size: 22px; font-weight: 700; margin-bottom: 20px; color: #0f172a; }
+
+    .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; margin-bottom: 28px; }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+      border-left: 4px solid #2563eb;
+    }
+    .card h3 { font-size: 13px; color: #64748b; margin-bottom: 6px; font-weight: 500; }
+    .card .value { font-size: 28px; font-weight: 700; color: #0f172a; }
+    .card .sub { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+
+    .section-title { font-size: 16px; font-weight: 600; margin: 24px 0 12px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+    th { background: #f8fafc; padding: 11px 16px; text-align: left; font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+    td { padding: 12px 16px; font-size: 13.5px; border-top: 1px solid #f1f5f9; }
+    tr:hover td { background: #f8fafc; }
+
+    .badge { display:inline-block; padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 600; }
+    .badge-blue { background: #dbeafe; color: #1d4ed8; }
+    .badge-green { background: #dcfce7; color: #15803d; }
+    .badge-yellow { background: #fef9c3; color: #a16207; }
+
+    /* POC 안내 배너 */
+    .poc-banner {
+      background: #fef3c7;
+      border: 1px solid #fcd34d;
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 24px;
+      font-size: 13px;
+      color: #92400e;
+    }
+    .poc-banner strong { color: #78350f; }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo">🏢 ACME HR Portal</div>
+  <nav>
+    <a href="#">마이페이지</a>
+    <a href="#">공지사항</a>
+    <a href="#">로그아웃</a>
+  </nav>
+</header>
+
+<aside class="sidebar">
+  <div class="sidebar-section">인사</div>
+  <a class="sidebar-item active" href="#">근태현황</a>
+  <a class="sidebar-item" href="#">연차신청</a>
+  <a class="sidebar-item" href="#">급여명세서</a>
+  <div class="sidebar-section">규정</div>
+  <a class="sidebar-item" href="#">취업규칙</a>
+  <a class="sidebar-item" href="#">인사규정</a>
+  <a class="sidebar-item" href="#">복리후생</a>
+  <div class="sidebar-section">증명서</div>
+  <a class="sidebar-item" href="#">재직증명서</a>
+  <a class="sidebar-item" href="#">경력증명서</a>
+</aside>
+
+<main class="main">
+  <div class="poc-banner">
+    ⚠️ <strong>POC 테스트 페이지</strong> — 실제 사내 포털 환경을 모사한 더미 페이지입니다.
+    우측 하단의 💬 버튼을 클릭하면 RAG 챗봇 위젯이 열립니다.
+  </div>
+
+  <div class="page-title">근태 현황</div>
+
+  <div class="cards">
+    <div class="card">
+      <h3>이번달 근무일수</h3>
+      <div class="value">18</div>
+      <div class="sub">/ 22 영업일</div>
+    </div>
+    <div class="card" style="border-left-color:#10b981;">
+      <h3>잔여 연차</h3>
+      <div class="value">7.5</div>
+      <div class="sub">일 (올해 총 15일)</div>
+    </div>
+    <div class="card" style="border-left-color:#f59e0b;">
+      <h3>이번달 초과근무</h3>
+      <div class="value">4.5</div>
+      <div class="sub">시간</div>
+    </div>
+    <div class="card" style="border-left-color:#8b5cf6;">
+      <h3>교육 이수</h3>
+      <div class="value">2</div>
+      <div class="sub">/ 4 필수과목</div>
+    </div>
+  </div>
+
+  <div class="section-title">최근 근태 내역</div>
+  <table>
+    <thead>
+      <tr>
+        <th>날짜</th>
+        <th>출근</th>
+        <th>퇴근</th>
+        <th>근무시간</th>
+        <th>구분</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>2026-05-23 (금)</td><td>08:52</td><td>18:10</td><td>9h 18m</td><td><span class="badge badge-green">정상</span></td></tr>
+      <tr><td>2026-05-22 (목)</td><td>09:01</td><td>19:30</td><td>10h 29m</td><td><span class="badge badge-yellow">연장</span></td></tr>
+      <tr><td>2026-05-21 (수)</td><td>08:45</td><td>18:00</td><td>9h 15m</td><td><span class="badge badge-green">정상</span></td></tr>
+      <tr><td>2026-05-20 (화)</td><td>-</td><td>-</td><td>-</td><td><span class="badge badge-blue">연차</span></td></tr>
+      <tr><td>2026-05-19 (월)</td><td>09:12</td><td>18:05</td><td>8h 53m</td><td><span class="badge badge-green">정상</span></td></tr>
+    </tbody>
+  </table>
+</main>
+
+<!-- ★ HR 챗봇 위젯 삽입 — 실제 배포 시 이 두 줄만 붙여넣으면 됩니다 ★ -->
+<script src="/widget.js" data-api=""></script>
+
+</body>
+</html>
