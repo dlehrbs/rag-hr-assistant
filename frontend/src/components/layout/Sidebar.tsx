@@ -51,7 +51,6 @@ export default function Sidebar() {
   const [currentModel, setCurrentModel] = useState<string | null>(null);
   const [loggedUsername, setLoggedUsername] = useState<string | null>(null);
   const [loggedDept, setLoggedDept] = useState<string | null>(null);
-  const [isSsoUser, setIsSsoUser] = useState(false); // [SSO] 포털 입장 사용자 — 로그아웃 버튼 숨김
   const [pwForm, setPwForm] = useState({ current: '', new: '', confirm: '' });
   const [pwError, setPwError] = useState('');
   const [pwLoading, setPwLoading] = useState(false);
@@ -102,7 +101,7 @@ export default function Sidebar() {
     }
   };
 
-  if (pathname === '/login' || pathname === '/register' || pathname === '/sso' || pathname === '/session-expired') return null;
+  if (pathname === '/login' || pathname === '/register') return null;
 
   useEffect(() => {
     if (activeModal === 'activity') fetchTasks();
@@ -136,8 +135,6 @@ export default function Sidebar() {
     if (matchUser) setLoggedUsername(decodeURIComponent(matchUser[2]).trim());
     const matchDept = document.cookie.match(new RegExp('(^| )rag_dept=([^;]+)'));
     if (matchDept) setLoggedDept(decodeURIComponent(matchDept[2]).trim());
-    const matchAuth = document.cookie.match(new RegExp('(^| )rag_auth=([^;]+)'));
-    if (matchAuth) setIsSsoUser(matchAuth[2] === 'sso');
 
     // 현재 활성 모델 조회 (10초마다 갱신 — 경량 엔드포인트 사용)
     const fetchModel = async () => {
@@ -473,9 +470,6 @@ export default function Sidebar() {
 
                       <div className="h-px bg-gray-100 dark:bg-gray-800 my-1" />
 
-                      {/* [SSO] 포털 입장 사용자는 비밀번호 자체가 없음 — 메뉴 숨김 */}
-                      {!isSsoUser && (
-                      <>
                       <button
                         onClick={() => { setActiveModal('password'); setIsSettingsOpen(false); setPwError(''); setPwSuccess(false); setPwForm({ current: '', new: '', confirm: '' }); }}
                         className="w-full px-4 py-3 text-left text-sm hover:bg-gray-100 dark:hover:bg-white/5 flex items-center transition-colors group"
@@ -485,8 +479,6 @@ export default function Sidebar() {
                       </button>
 
                       <div className="h-px bg-gray-100 dark:bg-gray-800 my-1" />
-                      </>
-                      )}
 
                       <button
                         onClick={() => {
@@ -511,8 +503,6 @@ export default function Sidebar() {
                         </button>
                       )}
 
-                      {/* [SSO] 포털 입장 사용자는 로그아웃 개념이 없음 — 관리자/일반 로그인만 표시 */}
-                      {!isSsoUser && (
                       <button
                         onClick={handleLogout}
                         className="w-full px-4 py-3 text-left text-sm hover:bg-gray-100 dark:hover:bg-white/5 flex items-center transition-colors group border-t border-gray-50 dark:border-gray-800"
@@ -520,7 +510,6 @@ export default function Sidebar() {
                          <LogOut size={18} className="mr-4 text-gray-500 group-hover:text-red-500 transition-colors" />
                          <span className="font-medium text-gray-700 dark:text-gray-300 group-hover:text-red-500">로그아웃</span>
                       </button>
-                      )}
                    </motion.div>
                 )}
              </AnimatePresence>

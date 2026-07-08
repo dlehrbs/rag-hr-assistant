@@ -1956,7 +1956,6 @@ export default function AdminDashboardPage() {
                         <div className="flex items-center gap-2">
                           <p className="font-semibold text-sm text-gray-800 dark:text-gray-200">{u.username}</p>
                           {u.display_name && <p className="text-sm text-gray-600 dark:text-gray-300">{u.display_name}</p>}
-                          {u.auth_type === 'sso' && <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400">SSO</span>}
                         </div>
                         <p className="text-xs text-gray-400">
                           {u.dept && <span className="mr-2">{u.dept}</span>}
