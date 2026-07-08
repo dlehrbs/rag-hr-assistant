@@ -1,5 +1,7 @@
 # RAG HR Assistant
 
+**English** · [한국어](README.ko.md)
+
 > **On-prem, document-grounded HR chatbot.** Drop your company's policy documents in, and employees get accurate, source-cited answers in natural language — running entirely inside your own network, no data ever leaving your servers.
 >
 > 사내 문서를 넣기만 하면, 임직원이 자연어로 물어보고 **출처가 달린 근거 기반 답변**을 받는 **완전 폐쇄망 RAG 챗봇**입니다.
