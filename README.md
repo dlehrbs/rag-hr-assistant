@@ -1,10 +1,8 @@
 # RAG HR Assistant
 
-**English** · [한국어](README.ko.md)
+[English](README.en.md) · **한국어**
 
-> **On-prem, document-grounded HR chatbot.** Drop your company's policy documents in, and employees get accurate, source-cited answers in natural language — running entirely inside your own network, no data ever leaving your servers.
->
-> 사내 문서를 넣기만 하면, 임직원이 자연어로 물어보고 **출처가 달린 근거 기반 답변**을 받는 **완전 폐쇄망 RAG 챗봇**입니다.
+> **완전 폐쇄망에서 도는 사내 문서 기반 HR 챗봇.** 회사 규정 문서를 넣기만 하면, 임직원이 자연어로 물어보고 **출처가 달린 근거 기반 답변**을 받습니다 — 모든 처리가 사내 서버 안에서 이뤄져 데이터가 밖으로 나가지 않습니다.
 
 ![version](https://img.shields.io/badge/version-v1.0.0-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
@@ -12,141 +10,141 @@
 ![next](https://img.shields.io/badge/Next.js-16-black)
 ![docker](https://img.shields.io/badge/Docker-Compose-2496ED)
 
-**Contents:** [Features](#-features) · [Architecture](#️-architecture) · [Tech stack](#-tech-stack) · [Quick start](#-quick-start) · [Configuration](#️-configuration) · [Screenshots](#-screenshots) · [Structure](#-project-structure) · [Security](#-security) · [License](#-license)
+**목차:** [기능](#-기능) · [아키텍처](#️-아키텍처) · [기술 스택](#-기술-스택) · [빠른 시작](#-빠른-시작) · [설정](#️-설정) · [화면](#️-화면) · [구조](#-프로젝트-구조) · [보안](#-보안) · [라이선스](#-라이선스)
 
 ---
 
-## ✨ Features
+## ✨ 기능
 
-- 🔒 **Fully on-premise** — LLM, embeddings, and vector store all run locally. Questions and documents never leave your network.
-- 📚 **Grounded RAG** — Parent-Child chunking + Kiwi (Korean morphological) BM25 hybrid retrieval + cross-encoder reranking → answers cite the source document, minimizing hallucination.
-- 🧭 **Intent Router** — classifies each question (greeting / meta / substantive) and routes it to the optimal path.
-- 🗂️ **Personal Project Spaces** — NotebookLM-style isolated workspaces where each user uploads their own files and chats over just those.
-- 🌐 **Web-search fallback** — when the answer isn't in your docs (and it's enabled), it extends with web results, clearly badged as non-official.
-- 💬 **General chat mode** — a toggle to switch between "company documents only" and "free-form assistant."
-- 🧩 **Embeddable widget** — add the chatbot to any existing portal with a single `<script>` tag.
-- 🛠️ **Admin console** — document management, live re-indexing, search-parameter tuning, knowledge-gap (zero-hit) mining, and p50/p95 latency monitoring.
+- 🔒 **완전 온프레미스** — LLM·임베딩·벡터스토어가 모두 로컬에서 동작. 질문과 문서가 사내망을 벗어나지 않습니다.
+- 📚 **근거 기반 RAG** — Parent-Child 청킹 + Kiwi(한국어 형태소) BM25 하이브리드 검색 + 크로스인코더 리랭킹 → 답변이 출처 문서를 인용해 환각을 억제합니다.
+- 🧭 **Intent Router** — 질문 유형(인사 / 메타 / 실질 질문)을 분류해 최적 경로로 라우팅합니다.
+- 🗂️ **개인 프로젝트 공간** — NotebookLM식 격리 워크스페이스. 각자 자기 파일을 올려 그 문서만 근거로 대화합니다.
+- 🌐 **웹 검색 폴백** — 사내 문서에 답이 없을 때(활성화 시) 웹 결과로 확장하며, 공식 규정이 아님을 배지로 명시합니다.
+- 💬 **범용 대화 모드** — "사내 문서만" ↔ "자유 답변"을 토글로 전환합니다.
+- 🧩 **삽입형 위젯** — 기존 포털에 `<script>` 한 줄로 챗봇을 붙입니다.
+- 🛠️ **관리자 콘솔** — 문서 관리, 무중단 재인덱싱, 검색 파라미터 튜닝, 지식 공백(zero-hit) 마이닝, p50/p95 응답시간 모니터링.
 
-> **Adapting to your company = editing two values** (`COMPANY_NAME`, `APP_NAME`) and dropping your PDFs into `data/documents/`. That's it.
+> **도입 회사에 맞추는 작업 = 값 두 개 수정**(`COMPANY_NAME`, `APP_NAME`) + `data/documents/`에 PDF 넣기. 끝.
 
 ---
 
-## 🏗️ Architecture
+## 🏗️ 아키텍처
 
 ```
                          ┌──────────── Docker Compose ────────────┐
-  Browser / Portal ─────▶│  nginx (reverse proxy, single entry)    │
+  브라우저 / 포털 ───────▶│  nginx (리버스 프록시, 단일 진입점)      │
        widget.js         │     /api/*  → backend                    │
                          │     /*      → frontend                   │
                          │                                          │
-                         │  frontend  Next.js (chat UI · admin)     │
-                         │  backend   FastAPI + RAG engine          │
-                         │  vllm      local LLM (OpenAI-compatible) │
+                         │  frontend  Next.js (채팅 UI · 관리자)     │
+                         │  backend   FastAPI + RAG 엔진             │
+                         │  vllm      로컬 LLM (OpenAI 호환)         │
                          └──────────────────────────────────────────┘
-   All within your own GPU server — no external data flow.
+   전부 사내 GPU 서버 안 — 외부로 나가는 데이터 흐름 없음.
 ```
 
-### RAG pipeline
+### RAG 파이프라인
 
 ```
-Documents (PDF·Word·Excel·PPT·HTML·txt·md)
-  → DocumentLoader      parse (LlamaParse cloud OR local PyMuPDF fallback)
-  → ParentChildSplitter chunk (Parent 1500 / Child 300 chars)
-  → ChromaDB            embed Child chunks (multilingual-e5-large, 1024-dim)
-  → Kiwi BM25           keyword index Parent chunks (Korean morphological)
-       ↓ (per query)
-  → HybridRetriever     vector + BM25 union
-  → BGE Reranker        cross-encoder rerank → top-k
-  → LLM (vLLM)          prompt assembly → grounded answer
-  → SSE streaming       token-by-token, with source citations
+문서 (PDF·Word·Excel·PPT·HTML·txt·md)
+  → DocumentLoader      파싱 (LlamaParse 클라우드 또는 로컬 PyMuPDF 폴백)
+  → ParentChildSplitter 청킹 (Parent 1500 / Child 300자)
+  → ChromaDB            Child 청크 임베딩 (multilingual-e5-large, 1024차원)
+  → Kiwi BM25           Parent 청크 키워드 인덱싱 (한국어 형태소)
+       ↓ (질문마다)
+  → HybridRetriever     벡터 + BM25 병합
+  → BGE Reranker        크로스인코더 리랭킹 → top-k
+  → LLM (vLLM)          프롬프트 조립 → 근거 기반 답변
+  → SSE 스트리밍         토큰 단위, 출처 인용 포함
 ```
 
-**Why these choices**
-- **Parent-Child** — search on small precise Child chunks, feed the LLM the larger Parent for context ("search narrow, read wide").
-- **Hybrid (vector + BM25)** — semantic recall plus exact keyword match; Kiwi handles Korean morphology so "연차를" matches "연차".
-- **Cross-encoder rerank** — a second, more accurate pass over the ~40 candidates to pick the final top-k.
-- **AWQ quantization** — runs a 7.8B model in ~5 GB VRAM with minimal quality loss.
+**왜 이렇게 설계했나**
+- **Parent-Child** — 작고 정밀한 Child로 검색하고, LLM엔 넓은 Parent를 넘겨 맥락 확보 ("좁게 찾고 넓게 읽힌다").
+- **하이브리드(벡터+BM25)** — 의미 검색 + 정확한 키워드 매칭. Kiwi가 한국어 형태소를 처리해 "연차를"이 "연차"에 매칭됩니다.
+- **크로스인코더 리랭킹** — 후보 ~40개를 2차로 정밀 재채점해 최종 top-k를 고릅니다.
+- **AWQ 양자화** — 7.8B 모델을 ~5GB VRAM으로, 품질 손실 최소.
 
 ---
 
-## 🧰 Tech stack
+## 🧰 기술 스택
 
-| Layer | Technology |
-|-------|-----------|
-| **LLM serving** | vLLM (OpenAI-compatible), EXAONE-3.5-7.8B-Instruct-AWQ (swappable) |
-| **Embeddings** | `intfloat/multilingual-e5-large` (1024-dim) |
-| **Reranker** | `BAAI/bge-reranker-v2-m3` (cross-encoder) |
-| **Vector store** | ChromaDB |
-| **Keyword search** | Kiwi morphological analyzer + BM25 |
-| **Parsing** | LlamaParse (cloud) / PyMuPDF (local fallback) |
-| **Backend** | FastAPI (Python 3.11), SQLite (WAL) |
-| **Frontend** | Next.js 16 (App Router), React 19, Zustand, Tailwind |
-| **Infra** | Docker Compose, nginx reverse proxy |
+| 계층 | 기술 |
+|------|------|
+| **LLM 서빙** | vLLM (OpenAI 호환), EXAONE-3.5-7.8B-Instruct-AWQ (교체 가능) |
+| **임베딩** | `intfloat/multilingual-e5-large` (1024차원) |
+| **리랭커** | `BAAI/bge-reranker-v2-m3` (크로스인코더) |
+| **벡터 스토어** | ChromaDB |
+| **키워드 검색** | Kiwi 형태소 분석기 + BM25 |
+| **파싱** | LlamaParse(클라우드) / PyMuPDF(로컬 폴백) |
+| **백엔드** | FastAPI (Python 3.11), SQLite (WAL) |
+| **프론트엔드** | Next.js 16 (App Router), React 19, Zustand, Tailwind |
+| **인프라** | Docker Compose, nginx 리버스 프록시 |
 
 ---
 
-## 🚀 Quick start
+## 🚀 빠른 시작
 
-**Prerequisites:** an NVIDIA GPU + drivers, and Docker (with the NVIDIA container runtime).
+**사전 준비:** NVIDIA GPU + 드라이버, Docker(NVIDIA 컨테이너 런타임 포함).
 
 ```bash
-git clone https://github.com/<you>/rag-hr-assistant.git
+git clone https://github.com/dlehrbs/rag-hr-assistant.git
 cd rag-hr-assistant
 
-cp .env.example .env          # then set COMPANY_NAME, APP_NAME, JWT_SECRET_KEY, ADMIN_PASSWORD
-cp your_policies/*.pdf data/documents/    # drop your documents
+cp .env.example .env          # COMPANY_NAME, APP_NAME, JWT_SECRET_KEY, ADMIN_PASSWORD 설정
+cp your_policies/*.pdf data/documents/    # 문서 넣기
 
 docker compose up -d --build
 ```
 
-Then open `http://localhost:8080`, log in as admin, go to **Admin → Documents → Re-index** to build the index. Done.
+이후 `http://localhost:8080` 접속 → admin 로그인 → **관리자 → 문서 → 재인덱싱**으로 인덱스 구축. 끝.
 
-> No GPU handy? The RAG/backend/frontend are standard; only the `vllm` service needs the GPU. You can point `VLLM_HOST` at any OpenAI-compatible endpoint instead.
-
----
-
-## ⚙️ Configuration
-
-Everything is driven by `.env` (see [`.env.example`](.env.example)). The only values you *must* change to rebrand:
-
-| Variable | Meaning |
-|----------|---------|
-| `COMPANY_NAME` | Company name used in prompts & greetings |
-| `APP_NAME` | Chatbot display name (UI, title) |
-| `JWT_SECRET_KEY` | Auth signing key (generate a random 64-char hex) |
-| `ADMIN_PASSWORD` | Initial admin password |
-
-Optional: `LLAMA_CLOUD_API_KEY` (precise parsing), `SEARXNG_URL` (web search), SMTP\_\* (email alerts), `RERANK_THRESHOLD` and other RAG knobs.
+> GPU가 없다면? RAG/백엔드/프론트는 표준이고 `vllm` 서비스만 GPU가 필요합니다. `VLLM_HOST`를 OpenAI 호환 엔드포인트로 지정해도 됩니다.
 
 ---
 
-## 🖼️ Screenshots
+## ⚙️ 설정
 
-The UI includes:
-- **Home** — category quick-chips, capability cards, and a `📘 Docs ↔ 💬 General` answer-mode toggle.
-- **Chat** — streamed answers with a `Sources` chip that expands to the exact cited passages, plus follow-up suggestions.
-- **Project space** — a file panel (upload PDF/Word/Excel/PPT/HTML) beside the conversation, with per-project instructions and member sharing.
-- **Admin console** — real-time p50/p95 latency, GPU status, query logs, zero-hit knowledge-gap mining, and user management.
+모든 설정은 `.env`로 제어됩니다([`.env.example`](.env.example) 참고). 리브랜딩에 *반드시* 바꿔야 하는 값:
 
-> Add your own captures (from a running instance with demo data) to `docs/screenshots/` and link them here.
+| 변수 | 의미 |
+|------|------|
+| `COMPANY_NAME` | 프롬프트·인사말에 쓰이는 회사명 |
+| `APP_NAME` | 챗봇 표시 이름 (UI·타이틀) |
+| `JWT_SECRET_KEY` | 인증 서명 키 (랜덤 64자 hex) |
+| `ADMIN_PASSWORD` | 관리자 초기 비밀번호 |
+
+선택: `LLAMA_CLOUD_API_KEY`(정밀 파싱), `SEARXNG_URL`(웹 검색), SMTP\_\*(이메일 알림), `RERANK_THRESHOLD` 등 RAG 튜닝 값.
 
 ---
 
-## 📁 Project structure
+## 🖼️ 화면
+
+UI 구성:
+- **홈** — 분야별 질문 칩, 기능 안내 카드, `📘 사내규정 ↔ 💬 일반대화` 답변 모드 토글.
+- **채팅** — 스트리밍 답변 + 클릭하면 인용 원문이 펼쳐지는 `출처` 칩, 후속 질문 추천.
+- **프로젝트 공간** — 대화 옆의 파일 패널(PDF·Word·Excel·PPT·HTML 업로드), 프로젝트별 지침·멤버 공유.
+- **관리자 콘솔** — 실시간 p50/p95 응답시간, GPU 상태, 질의 로그, 지식 공백(zero-hit) 마이닝, 사용자 관리.
+
+> 라이브 인스턴스에서(데모 데이터로) 캡처한 화면을 `docs/screenshots/`에 넣고 여기 링크하세요.
+
+---
+
+## 📁 프로젝트 구조
 
 ```
 rag-hr-assistant/
 ├── backend/app/
-│   ├── main.py                # bootstrap only (assembles FastAPI)
-│   ├── config.py              # paths · constants · branding
-│   ├── core/                  # RAG atoms: loader·splitter·embedder·vector_store·retriever·reranker·auth
-│   ├── rag/                   # manager · router · retrieval_utils · generator (SSE pipeline)
-│   ├── handlers/files.py      # upload parsing
-│   ├── routes/                # APIRouters: auth·chat·admin·projects·documents·widget·…
+│   ├── main.py                # 부트스트랩 전용 (FastAPI 조립)
+│   ├── config.py              # 경로 · 상수 · 브랜딩
+│   ├── core/                  # RAG 원자: loader·splitter·embedder·vector_store·retriever·reranker·auth
+│   ├── rag/                   # manager · router · retrieval_utils · generator (SSE 파이프라인)
+│   ├── handlers/files.py      # 업로드 파싱
+│   ├── routes/                # APIRouter: auth·chat·admin·projects·documents·widget·…
 │   └── (db · deps · state · monitoring · schemas · logging_setup)
-├── frontend/                  # Next.js (chat UI · admin console · widget.js)
-├── data/documents/            # ← put your documents here (empty by default)
-├── nginx.conf                 # reverse proxy (generic, no IP allowlist by default)
+├── frontend/                  # Next.js (채팅 UI · 관리자 콘솔 · widget.js)
+├── data/documents/            # ← 여기에 문서를 넣습니다 (기본 비어있음)
+├── nginx.conf                 # 리버스 프록시 (기본은 IP 화이트리스트 없음)
 ├── docker-compose.yml
 ├── .env.example
 └── LICENSE (MIT)
@@ -154,19 +152,19 @@ rag-hr-assistant/
 
 ---
 
-## 🔐 Security
+## 🔐 보안
 
-- **JWT auth** (access + refresh, HttpOnly cookies); all `/api/admin/*` guarded server-side.
-- **Closed network** — vLLM is internal-only (`expose`), nginx is the single entry point; optional IP allowlist in `nginx.conf`.
-- **No secrets in the repo** — everything sensitive lives in `.env` (git-ignored); only `.env.example` is committed.
-- **Rate limiting** on the public widget endpoint.
-
----
-
-## 📜 License
-
-MIT — see [LICENSE](LICENSE). Free to use, modify, and distribute (including commercially).
+- **JWT 인증** (access + refresh, HttpOnly 쿠키); 모든 `/api/admin/*`는 서버측에서 차단.
+- **폐쇄망** — vLLM은 내부 전용(`expose`), nginx가 유일 진입점; `nginx.conf`에서 IP 화이트리스트 선택 적용 가능.
+- **저장소에 비밀정보 없음** — 민감값은 전부 `.env`(git 무시), 저장소엔 `.env.example`만.
+- 공개 위젯 엔드포인트에 **Rate limiting** 적용.
 
 ---
 
-<sub>Built as a portfolio project demonstrating a production-style, on-prem RAG system: hybrid retrieval, reranking, streaming generation, multi-tenant project spaces, and an operations console. The default LLM is EXAONE-3.5-7.8B (Korean-optimized), swappable for any OpenAI-compatible model.</sub>
+## 📜 라이선스
+
+MIT — [LICENSE](LICENSE) 참고. 상업적 이용 포함 자유롭게 사용·수정·배포 가능.
+
+---
+
+<sub>실제 프로덕션급 온프레미스 RAG 시스템(하이브리드 검색·리랭킹·스트리밍 생성·멀티테넌트 프로젝트 공간·운영 콘솔)을 보여주는 포트폴리오 프로젝트입니다. 기본 LLM은 한국어에 최적화된 EXAONE-3.5-7.8B이며, OpenAI 호환 모델로 교체 가능합니다.</sub>
