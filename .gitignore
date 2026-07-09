@@ -37,3 +37,4 @@ certs/
 *.bak
 *_bak
 *.bak_*
+docker-compose.capture.yml
