@@ -122,13 +122,40 @@ Optional: `LLAMA_CLOUD_API_KEY` (precise parsing), `SEARXNG_URL` (web search), S
 
 ## 🖼️ Screenshots
 
-The UI includes:
-- **Home** — category quick-chips, capability cards, and a `📘 Docs ↔ 💬 General` answer-mode toggle.
-- **Chat** — streamed answers with a `Sources` chip that expands to the exact cited passages, plus follow-up suggestions.
-- **Project space** — a file panel (upload PDF/Word/Excel/PPT/HTML) beside the conversation, with per-project instructions and member sharing.
-- **Admin console** — real-time p50/p95 latency, GPU status, query logs, zero-hit knowledge-gap mining, and user management.
+> All captured with dummy data (company `ACME`, sample policies).
 
-> Add your own captures (from a running instance with demo data) to `docs/screenshots/` and link them here.
+### Chatbot
+
+**Home** — category quick-chips, capability cards, `📘 Docs ↔ 💬 General` answer-mode toggle
+![home](docs/screenshots/home.png)
+
+**Grounded Q&A** — document-cited answer + `Sources` badge + follow-up suggestions
+![chat](docs/screenshots/chat.png)
+
+**Source detail** — expanded preview of the cited passage + open original
+![chat-sources](docs/screenshots/chat-sources.png)
+
+### Personal Project Spaces
+
+**Project list** — personal workspace cards (file count · shared members)
+![project-list](docs/screenshots/project-list.png)
+
+**Inside a project** — file panel (PDF/Word/Excel/PPT/HTML) · per-project instructions · chat
+![project-inside](docs/screenshots/project-inside.png)
+
+**Invite members** — editor / viewer sharing
+![project-member](docs/screenshots/project-member.png)
+
+### Admin console
+
+**Live dashboard** — p50/p95 latency · GPU status · query logs · zero-hit knowledge-gap mining
+![admin-dashboard](docs/screenshots/admin-dashboard.png)
+
+**Document management** — document list · index status · add & zero-downtime re-index
+![admin-documents](docs/screenshots/admin-documents.png)
+
+**User management** — accounts · roles · sign-up approval
+![admin-users](docs/screenshots/admin-users.png)
 
 ---
 

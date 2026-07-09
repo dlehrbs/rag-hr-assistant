@@ -120,13 +120,40 @@ docker compose up -d --build
 
 ## 🖼️ 화면
 
-UI 구성:
-- **홈** — 분야별 질문 칩, 기능 안내 카드, `📘 사내규정 ↔ 💬 일반대화` 답변 모드 토글.
-- **채팅** — 스트리밍 답변 + 클릭하면 인용 원문이 펼쳐지는 `출처` 칩, 후속 질문 추천.
-- **프로젝트 공간** — 대화 옆의 파일 패널(PDF·Word·Excel·PPT·HTML 업로드), 프로젝트별 지침·멤버 공유.
-- **관리자 콘솔** — 실시간 p50/p95 응답시간, GPU 상태, 질의 로그, 지식 공백(zero-hit) 마이닝, 사용자 관리.
+> 모두 더미 데이터(회사명 `ACME`, 샘플 사규)로 캡처한 화면입니다.
 
-> 라이브 인스턴스에서(데모 데이터로) 캡처한 화면을 `docs/screenshots/`에 넣고 여기 링크하세요.
+### 챗봇
+
+**홈** — 분야별 질문 칩, 기능 안내 카드, `📘 사내규정 ↔ 💬 일반대화` 답변 모드 토글
+![home](docs/screenshots/home.png)
+
+**규정 Q&A** — 문서 근거 답변 + `출처` 배지 + 후속 질문 추천
+![chat](docs/screenshots/chat.png)
+
+**출처 상세** — 인용된 규정 원문 미리보기 + 원본 열기
+![chat-sources](docs/screenshots/chat-sources.png)
+
+### 개인 프로젝트 공간
+
+**프로젝트 목록** — 개인 워크스페이스 카드(파일 수·공유 인원)
+![project-list](docs/screenshots/project-list.png)
+
+**프로젝트 내부** — 파일 패널(PDF·Word·Excel·PPT·HTML 업로드)·프로젝트별 지침·대화
+![project-inside](docs/screenshots/project-inside.png)
+
+**멤버 초대** — 편집자/뷰어 권한 공유
+![project-member](docs/screenshots/project-member.png)
+
+### 관리자 콘솔
+
+**실시간 대시보드** — 응답시간 p50/p95·GPU 상태·질의 로그·지식 공백(zero-hit) 마이닝
+![admin-dashboard](docs/screenshots/admin-dashboard.png)
+
+**문서 관리** — 문서 목록·인덱싱 상태, 신규 추가·무중단 재인덱싱
+![admin-documents](docs/screenshots/admin-documents.png)
+
+**사용자 관리** — 계정 생성·역할·활성화, 가입 승인/반려
+![admin-users](docs/screenshots/admin-users.png)
 
 ---
 
