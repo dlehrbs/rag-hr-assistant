@@ -120,6 +120,21 @@ class DocumentLoader:
         truncated_name = fname[:50].replace(" ", "_") # 앞 50자만 사용
         return os.path.join(self.cache_dir, f"{truncated_name}_{name_hash}.{suffix}.md")
 
+    def _load_with_pymupdf(self, file_path: str, fname: str) -> List[Document]:
+        """PyMuPDF 로컬 파서 — source_file/page_no 메타데이터를 보강해 반환.
+
+        PyMuPDFLoader 기본 메타에는 source_file 키가 없어(그대신 source/file_path/page),
+        출처 배지 조립부(generator)가 문서를 스킵 → 출처가 표시되지 않는 문제가 있었다.
+        LlamaParse가 없거나 실패해 이 폴백을 타는 경우에도 출처가 정상 표기되도록 보강한다.
+        """
+        from langchain_community.document_loaders import PyMuPDFLoader
+        docs = PyMuPDFLoader(file_path).load()
+        for i, d in enumerate(docs):
+            d.metadata["source_file"] = fname
+            _pg = d.metadata.get("page")
+            d.metadata["page_no"] = (_pg + 1) if isinstance(_pg, int) else (i + 1)
+        return docs
+
     def load_pdf(self, file_path: str) -> List[Document]:
         """하이브리드 파싱 로직 (캐시 우선 + 재시도 + 폴백)"""
         fname = os.path.basename(file_path)
@@ -162,14 +177,10 @@ class DocumentLoader:
             else:
                 # LlamaParse 최종 실패 시 로컬 고속 파서로 긴급 우회
                 logger.warning(f"[Fallback] LlamaParse 최종 실패 → 로컬 파서 전환: {fname}")
-                from langchain_community.document_loaders import PyMuPDFLoader
-                loader = PyMuPDFLoader(file_path)
-                return loader.load()
+                return self._load_with_pymupdf(file_path, fname)
         else:
             # 설정상 LlamaParse가 아예 없으면 로컬 사용
-            from langchain_community.document_loaders import PyMuPDFLoader
-            loader = PyMuPDFLoader(file_path)
-            return loader.load()
+            return self._load_with_pymupdf(file_path, fname)
 
         # 3. Marker (표 서브 파서 - 필요 시 활성화)
         if self.use_marker and self.marker_converter:
