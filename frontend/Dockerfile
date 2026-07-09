@@ -12,7 +12,9 @@ COPY . .
 COPY --from=deps /app/node_modules ./node_modules
 
 # 빌드 타임 환경변수 (NEXT_PUBLIC_* 는 빌드 시 번들에 포함되므로 ARG로 전달)
-ARG NEXT_PUBLIC_API_URL=http://localhost:8123
+# 기본값은 빈 값 = 같은 출처(상대경로 /api) → nginx 프록시가 백엔드로 전달.
+# 별도 도메인/포트로 API를 직접 노출할 때만 이 값을 지정한다.
+ARG NEXT_PUBLIC_API_URL=
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 ARG BACKEND_URL=http://backend:8123
 ENV BACKEND_URL=${BACKEND_URL}

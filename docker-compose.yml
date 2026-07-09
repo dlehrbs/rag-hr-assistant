@@ -81,7 +81,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8123}
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-}
         NEXT_PUBLIC_APP_NAME: ${APP_NAME:-HR Assistant}
         BACKEND_URL: http://backend:8123
     image: rag-hr-assistant/frontend:${APP_VERSION:-latest}
@@ -92,7 +92,7 @@ services:
     environment:
       - NODE_ENV=production
       - BACKEND_URL=http://backend:8123
-      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8123}
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-}
       - NEXT_PUBLIC_APP_NAME=${APP_NAME:-HR Assistant}
       - TZ=${TZ:-Asia/Seoul}
       - HOSTNAME=0.0.0.0
